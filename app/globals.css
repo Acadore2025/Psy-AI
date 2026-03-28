@@ -89,7 +89,7 @@ body::before {
 /* Buttons */
 .btn-primary {
   @apply inline-flex items-center justify-center gap-2;
-  @apply bg-signal text-white border-none;
+  @apply bg-indigo-600 text-white border-none;
   @apply px-6 py-3 text-sm font-medium tracking-wide;
   @apply transition-all duration-200 cursor-pointer;
   @apply rounded-sm;
