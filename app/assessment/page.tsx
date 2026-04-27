@@ -483,7 +483,7 @@ export default function AssessmentPage() {
     const q = questions[qi]
     if (!q) return
 
-    const answerVal = val ?? selected || textVal
+    const answerVal = val ?? (selected || textVal)
     if (!answerVal && q.type !== 'IP') return
 
     const answer: Answer = {
