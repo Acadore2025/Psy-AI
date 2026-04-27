@@ -20,6 +20,148 @@ type Answer = {
 type InputMode = 'text' | 'voice'
 
 // ─────────────────────────────────────────────────────────────────────
+// Language config
+// ─────────────────────────────────────────────────────────────────────
+type LangConfig = {
+  code: string        // BCP-47 code for SpeechRecognition
+  label: string       // Display name in native script
+  labelEn: string     // Display name in English
+  flag: string        // Emoji flag
+  agPhrases: Record<string, string[]>   // spoken phrases → Likert value
+  optionWords: Record<string, string[]> // spoken words → option ID (A/B/C/D)
+  hint: {
+    ag: string
+    cs: string
+    choice: string
+  }
+}
+
+const LANGUAGES: LangConfig[] = [
+  {
+    code: 'en-US',
+    label: 'English',
+    labelEn: 'English',
+    flag: '🇺🇸',
+    agPhrases: {
+      '5': ['strongly agree', 'five', '5'],
+      '4': ['agree', 'four', '4'],
+      '3': ['neutral', 'neither', 'three', '3'],
+      '2': ['disagree', 'two', '2'],
+      '1': ['strongly disagree', 'one', '1'],
+    },
+    optionWords: {
+      A: ['a', 'option a', 'first', 'one'],
+      B: ['b', 'option b', 'second', 'two'],
+      C: ['c', 'option c', 'third', 'three'],
+      D: ['d', 'option d', 'fourth', 'four'],
+    },
+    hint: {
+      ag: 'Say "Strongly Agree", "Agree", "Neutral", "Disagree", or "Strongly Disagree"',
+      cs: 'Speak your answer — it transcribes live and you can edit before submitting',
+      choice: 'Say the option letter: "A", "B", "C", or "D"',
+    },
+  },
+  {
+    code: 'hi-IN',
+    label: 'हिंदी',
+    labelEn: 'Hindi',
+    flag: '🇮🇳',
+    agPhrases: {
+      '5': ['बिल्कुल सहमत', 'पूरी तरह सहमत', 'पूर्णतः सहमत', 'strongly agree'],
+      '4': ['सहमत', 'हाँ सहमत', 'agree'],
+      '3': ['तटस्थ', 'न सहमत न असहमत', 'neutral', 'कोई राय नहीं'],
+      '2': ['असहमत', 'नहीं सहमत', 'disagree'],
+      '1': ['बिल्कुल असहमत', 'पूरी तरह असहमत', 'strongly disagree'],
+    },
+    optionWords: {
+      A: ['a', 'ए', 'पहला', 'एक'],
+      B: ['b', 'बी', 'दूसरा', 'दो'],
+      C: ['c', 'सी', 'तीसरा', 'तीन'],
+      D: ['d', 'डी', 'चौथा', 'चार'],
+    },
+    hint: {
+      ag: '"बिल्कुल सहमत", "सहमत", "तटस्थ", "असहमत" या "बिल्कुल असहमत" कहें',
+      cs: 'अपना उत्तर बोलें — यह लाइव transcribe होगा और आप edit कर सकते हैं',
+      choice: 'विकल्प का अक्षर बोलें: "A", "B", "C" या "D"',
+    },
+  },
+  {
+    code: 'ta-IN',
+    label: 'தமிழ்',
+    labelEn: 'Tamil',
+    flag: '🇮🇳',
+    agPhrases: {
+      '5': ['முற்றிலும் ஒப்புக்கொள்கிறேன்', 'மிகவும் சம்மதம்', 'strongly agree'],
+      '4': ['ஒப்புக்கொள்கிறேன்', 'சம்மதம்', 'agree'],
+      '3': ['நடுநிலை', 'எதுவுமில்லை', 'neutral'],
+      '2': ['ஒப்புக்கொள்ளவில்லை', 'சம்மதமில்லை', 'disagree'],
+      '1': ['முற்றிலும் ஒப்புக்கொள்ளவில்லை', 'strongly disagree'],
+    },
+    optionWords: {
+      A: ['a', 'முதல்', 'ஒன்று'],
+      B: ['b', 'இரண்டு', 'இரண்டாவது'],
+      C: ['c', 'மூன்று', 'மூன்றாவது'],
+      D: ['d', 'நான்கு', 'நான்காவது'],
+    },
+    hint: {
+      ag: '"முற்றிலும் ஒப்புக்கொள்கிறேன்", "ஒப்புக்கொள்கிறேன்", "நடுநிலை", "ஒப்புக்கொள்ளவில்லை" என்று சொல்லுங்கள்',
+      cs: 'உங்கள் பதிலை பேசுங்கள் — அது நேரடியாக transcribe ஆகும்',
+      choice: 'விருப்பத்தின் எழுத்தை சொல்லுங்கள்: "A", "B", "C" அல்லது "D"',
+    },
+  },
+  {
+    code: 'bn-IN',
+    label: 'বাংলা',
+    labelEn: 'Bengali',
+    flag: '🇮🇳',
+    agPhrases: {
+      '5': ['সম্পূর্ণ একমত', 'পুরোপুরি একমত', 'strongly agree'],
+      '4': ['একমত', 'রাজি', 'agree'],
+      '3': ['নিরপেক্ষ', 'মাঝামাঝি', 'neutral'],
+      '2': ['একমত নই', 'রাজি নই', 'disagree'],
+      '1': ['সম্পূর্ণ একমত নই', 'পুরোপুরি একমত নই', 'strongly disagree'],
+    },
+    optionWords: {
+      A: ['a', 'এ', 'প্রথম', 'এক'],
+      B: ['b', 'বি', 'দ্বিতীয়', 'দুই'],
+      C: ['c', 'সি', 'তৃতীয়', 'তিন'],
+      D: ['d', 'ডি', 'চতুর্থ', 'চার'],
+    },
+    hint: {
+      ag: '"সম্পূর্ণ একমত", "একমত", "নিরপেক্ষ", "একমত নই" বলুন',
+      cs: 'আপনার উত্তর বলুন — এটি সরাসরি transcribe হবে এবং আপনি edit করতে পারবেন',
+      choice: 'বিকল্পের অক্ষর বলুন: "A", "B", "C" বা "D"',
+    },
+  },
+  {
+    code: 'mr-IN',
+    label: 'मराठी',
+    labelEn: 'Marathi',
+    flag: '🇮🇳',
+    agPhrases: {
+      '5': ['पूर्णपणे सहमत', 'संपूर्णपणे सहमत', 'strongly agree'],
+      '4': ['सहमत', 'मान्य', 'agree'],
+      '3': ['तटस्थ', 'neutral', 'कोणतेच मत नाही'],
+      '2': ['असहमत', 'मान्य नाही', 'disagree'],
+      '1': ['पूर्णपणे असहमत', 'संपूर्णपणे असहमत', 'strongly disagree'],
+    },
+    optionWords: {
+      A: ['a', 'ए', 'पहिला', 'एक'],
+      B: ['b', 'बी', 'दुसरा', 'दोन'],
+      C: ['c', 'सी', 'तिसरा', 'तीन'],
+      D: ['d', 'डी', 'चौथा', 'चार'],
+    },
+    hint: {
+      ag: '"पूर्णपणे सहमत", "सहमत", "तटस्थ", "असहमत" किंवा "पूर्णपणे असहमत" म्हणा',
+      cs: 'तुमचे उत्तर बोला — ते थेट transcribe होईल आणि तुम्ही edit करू शकता',
+      choice: 'पर्यायाचे अक्षर सांगा: "A", "B", "C" किंवा "D"',
+    },
+  },
+]
+
+const DEFAULT_LANG = LANGUAGES[0] // English
+
+// ─────────────────────────────────────────────────────────────────────
 // Constants
 // ─────────────────────────────────────────────────────────────────────
 const LIKERT_LABELS = [
@@ -33,53 +175,60 @@ const LIKERT_LABELS = [
 // ─────────────────────────────────────────────────────────────────────
 // Voice helpers
 // ─────────────────────────────────────────────────────────────────────
-
-/** Returns the SpeechRecognition constructor — works in Chrome, Edge, Safari. */
 function getSpeechRecognition(): SpeechRecognitionStatic | null {
   if (typeof window === 'undefined') return null
   return window.SpeechRecognition ?? window.webkitSpeechRecognition ?? null
 }
 
-/** True when running on HTTPS or localhost (required for mic access). */
 function isSecureOrigin(): boolean {
   if (typeof window === 'undefined') return true
   const { protocol, hostname } = window.location
-  return (
-    protocol === 'https:' ||
-    hostname === 'localhost' ||
-    hostname === '127.0.0.1'
-  )
+  return protocol === 'https:' || hostname === 'localhost' || hostname === '127.0.0.1'
 }
 
-/** True when running in Safari (used for workarounds). */
 function isSafariBrowser(): boolean {
   if (typeof navigator === 'undefined') return false
   return /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
 }
 
-/** Match spoken text to an AG Likert scale value. */
-function matchAGVoice(t: string): string | null {
-  const s = t.toLowerCase().trim()
-  if (s.includes('strongly agree')    || s === '5') return '5'
-  if (s.includes('strongly disagree') || s === '1') return '1'
-  if (s.includes('agree')             || s === '4') return '4'
-  if (s.includes('disagree')          || s === '2') return '2'
-  if (s.includes('neutral') || s.includes('neither') || s === '3') return '3'
+/** Match spoken transcript to an AG Likert value using the language config. */
+function matchAGVoice(transcript: string, lang: LangConfig): string | null {
+  const s = transcript.toLowerCase().trim()
+  // Check longer phrases first to avoid "agree" matching before "strongly agree"
+  const entries = Object.entries(lang.agPhrases).sort(
+    (a, b) => Math.max(...b[1].map(p => p.length)) - Math.max(...a[1].map(p => p.length))
+  )
+  for (const [val, phrases] of entries) {
+    for (const phrase of phrases) {
+      if (s.includes(phrase.toLowerCase())) return val
+    }
+  }
   return null
 }
 
-/** Match spoken text to one of the option IDs or their text. */
+/** Match spoken transcript to one of the option IDs using language config + text. */
 function matchOptionVoice(
-  t: string,
-  options: { id: string; text: string }[]
+  transcript: string,
+  options: { id: string; text: string }[],
+  lang: LangConfig
 ): string | null {
-  const s = t.toLowerCase().trim()
+  const s = transcript.toLowerCase().trim()
+
   for (const opt of options) {
-    const id = opt.id.toLowerCase()
-    if (s === id || s.startsWith(id + ' ') || s.startsWith(id + '.')) return opt.id
+    const id = opt.id.toUpperCase()
+
+    // 1. Direct letter match
+    if (s === opt.id.toLowerCase() || s.startsWith(opt.id.toLowerCase() + ' ')) return id
+
+    // 2. Language-specific number/word match
+    const words = lang.optionWords[id] ?? []
+    for (const word of words) {
+      if (s === word.toLowerCase() || s.startsWith(word.toLowerCase() + ' ')) return id
+    }
+
+    // 3. First words of option text
     const snippet = opt.text.toLowerCase().split(' ').slice(0, 4).join(' ')
-    if (snippet.length >= 6 && s.includes(snippet.slice(0, snippet.length - 1)))
-      return opt.id
+    if (snippet.length >= 6 && s.includes(snippet.slice(0, snippet.length - 1))) return id
   }
   return null
 }
@@ -87,7 +236,6 @@ function matchOptionVoice(
 // ─────────────────────────────────────────────────────────────────────
 // Sub-components
 // ─────────────────────────────────────────────────────────────────────
-
 function MicButton({
   isListening,
   disabled,
@@ -104,13 +252,11 @@ function MicButton({
       aria-label={isListening ? 'Stop listening' : 'Start voice input'}
       className={`w-20 h-20 rounded-full flex items-center justify-center
         transition-all duration-200 border-2 relative
-        ${
-          disabled
-            ? 'border-[#1A1C22] opacity-40 cursor-not-allowed'
-            : isListening
-            ? 'border-signal bg-signal/10 scale-110'
-            : 'border-[#2A2C32] bg-[#131520] hover:border-signal hover:scale-105'
-        }`}
+        ${disabled
+          ? 'border-[#1A1C22] opacity-40 cursor-not-allowed'
+          : isListening
+          ? 'border-signal bg-signal/10 scale-110'
+          : 'border-[#2A2C32] bg-[#131520] hover:border-signal hover:scale-105'}`}
     >
       {isListening && !disabled && (
         <span className="absolute inset-0 rounded-full border border-signal/40 animate-ping" />
@@ -172,6 +318,44 @@ function InputModeToggle({
   )
 }
 
+/** Language selector shown inside the voice panel. */
+function LanguageSelector({
+  selected,
+  onChange,
+  disabled,
+}: {
+  selected: LangConfig
+  onChange: (lang: LangConfig) => void
+  disabled: boolean
+}) {
+  return (
+    <div className="w-full">
+      <p className="text-[10px] text-muted uppercase tracking-wider mb-2">
+        Voice language
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {LANGUAGES.map(lang => (
+          <button
+            key={lang.code}
+            onClick={() => !disabled && onChange(lang)}
+            disabled={disabled}
+            title={lang.labelEn}
+            className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-sm text-xs
+              transition-all duration-150
+              ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
+              ${selected.code === lang.code
+                ? 'border-signal bg-[#1A0F0A] text-paper'
+                : 'border-[#2A2C32] text-muted hover:border-[#4A4C52] hover:text-paper'}`}
+          >
+            <span>{lang.flag}</span>
+            <span>{lang.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // ─────────────────────────────────────────────────────────────────────
 // Main component
 // ─────────────────────────────────────────────────────────────────────
@@ -197,12 +381,11 @@ export default function AssessmentPage() {
 
   // Voice
   const [inputMode,       setInputMode]       = useState<InputMode>('text')
+  const [voiceLang,       setVoiceLang]       = useState<LangConfig>(DEFAULT_LANG)
   const [isListening,     setIsListening]     = useState(false)
   const [voiceTranscript, setVoiceTranscript] = useState('')
   const [voiceError,      setVoiceError]      = useState('')
-  // FIX 2: detect browser support separately (Firefox has neither variant)
   const [voiceSupported,  setVoiceSupported]  = useState(false)
-  // FIX 1: detect insecure origin (HTTP outside localhost)
   const [insecureOrigin,  setInsecureOrigin]  = useState(false)
 
   // Refs
@@ -211,10 +394,9 @@ export default function AssessmentPage() {
   const timerRef          = useRef<NodeJS.Timeout | null>(null)
   const recognitionRef    = useRef<SpeechRecognition | null>(null)
   const currentQRef       = useRef<SessionQuestion | null>(null)
-  // FIX 3 (Safari): accumulate transcript here; process in onend, not onresult
   const lastTranscriptRef = useRef('')
-  // FIX 5 (Safari CS): need to know inputMode inside recognition callbacks
   const inputModeRef      = useRef<InputMode>('text')
+  const voiceLangRef      = useRef<LangConfig>(DEFAULT_LANG)
 
   // ── Boot ──────────────────────────────────────────────────────
   useEffect(() => {
@@ -222,14 +404,10 @@ export default function AssessmentPage() {
     setVoiceSupported(getSpeechRecognition() !== null)
   }, [])
 
-  // Keep refs in sync so recognition callbacks never go stale
-  useEffect(() => {
-    currentQRef.current = questions[qi] ?? null
-  }, [qi, questions])
-
-  useEffect(() => {
-    inputModeRef.current = inputMode
-  }, [inputMode])
+  // Keep refs in sync
+  useEffect(() => { currentQRef.current = questions[qi] ?? null }, [qi, questions])
+  useEffect(() => { inputModeRef.current = inputMode }, [inputMode])
+  useEffect(() => { voiceLangRef.current = voiceLang }, [voiceLang])
 
   // Load profile and create session
   useEffect(() => {
@@ -282,13 +460,13 @@ export default function AssessmentPage() {
     return () => clearInterval(interval)
   }, [qi, questions])
 
-  // FIX 4: when IP timer freezes, stop the mic immediately
+  // Stop mic when IP freezes
   useEffect(() => {
     if (froze) stopListening()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [froze])
 
-  // FIX 4: auto-start mic for IP questions when voice mode is active
+  // Auto-start mic for IP questions in voice mode
   useEffect(() => {
     if (inputMode !== 'voice' || !voiceSupported || insecureOrigin) return
     const q = questions[qi]
@@ -342,18 +520,23 @@ export default function AssessmentPage() {
     lastTranscriptRef.current = ''
   }
 
-  // useCallback so the IP auto-start effect can depend on it safely
+  function handleLangChange(lang: LangConfig) {
+    stopListening()
+    setVoiceLang(lang)
+    setVoiceError('')
+    setVoiceTranscript('')
+    lastTranscriptRef.current = ''
+  }
+
   const startListening = useCallback(() => {
     const SR = getSpeechRecognition()
     if (!SR) return
 
-    // FIX 1: refuse to start on insecure origins
     if (!isSecureOrigin()) {
-      setVoiceError('Voice input requires HTTPS. Please deploy to Vercel or use localhost.')
+      setVoiceError('Voice input requires HTTPS. It will work on Vercel.')
       return
     }
 
-    // Tear down any existing instance
     if (recognitionRef.current) {
       try { recognitionRef.current.stop() } catch (_) {}
       recognitionRef.current = null
@@ -364,21 +547,18 @@ export default function AssessmentPage() {
     lastTranscriptRef.current = ''
 
     const safari = isSafariBrowser()
+    const lang   = voiceLangRef.current
 
     const recognition = new SR()
-    // FIX 5 (Safari): Safari's continuous mode is unreliable.
-    // For CS on Safari we use single-shot and re-start automatically in onend.
     recognition.continuous     = currentQRef.current?.type === 'CS' && !safari
     recognition.interimResults = true
-    recognition.lang           = 'en-US'
+    recognition.lang           = lang.code  // ← language set here
 
     recognition.onstart = () => {
       setIsListening(true)
       onFirstKey()
     }
 
-    // FIX 3 (Safari): accumulate ALL results into a ref.
-    // Don't act on isFinal here — do it in onend which fires reliably everywhere.
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       let combined = ''
       for (let i = 0; i < event.results.length; i++) {
@@ -388,7 +568,6 @@ export default function AssessmentPage() {
       lastTranscriptRef.current = t
       setVoiceTranscript(t)
 
-      // For CS: stream words into the textarea live
       if (currentQRef.current?.type === 'CS') {
         setTextVal(t)
         onFirstKey()
@@ -400,12 +579,9 @@ export default function AssessmentPage() {
       switch (event.error) {
         case 'not-allowed':
         case 'permission-denied':
-          setVoiceError(
-            'Microphone access denied. Click the padlock in the address bar and allow the microphone.'
-          )
+          setVoiceError('Microphone access denied. Click the padlock in the address bar and allow the microphone.')
           break
         case 'no-speech':
-          // Silently ignore — user just didn't speak yet
           break
         case 'network':
           setVoiceError('Network error. Check your connection and try again.')
@@ -415,19 +591,17 @@ export default function AssessmentPage() {
       }
     }
 
-    // FIX 3 + FIX 5: do all matching here in onend.
-    // This is the only event that fires reliably on Chrome, Edge, AND Safari.
     recognition.onend = () => {
       setIsListening(false)
 
-      const q = currentQRef.current
+      const q    = currentQRef.current
+      const lang = voiceLangRef.current
       if (!q) return
 
       const t = lastTranscriptRef.current
 
       if (q.type === 'CS') {
-        // Transcript is already in textVal from onresult.
-        // FIX 5 (Safari): re-start so the user can keep speaking naturally.
+        // Safari: restart so user can keep speaking
         if (safari && inputModeRef.current === 'voice') {
           setTimeout(() => {
             if (currentQRef.current?.type === 'CS') startListening()
@@ -436,21 +610,24 @@ export default function AssessmentPage() {
         return
       }
 
-      // Choice questions: match the last spoken phrase
       if (!t) return
 
       let matched: string | null = null
       if (q.type === 'AG') {
-        matched = matchAGVoice(t)
+        matched = matchAGVoice(t, lang)
       } else if (q.options) {
-        matched = matchOptionVoice(t, q.options)
+        matched = matchOptionVoice(t, q.options, lang)
       }
 
       if (matched) {
         setVoiceTranscript(`✓ "${t}" → ${matched}`)
         selectOption(matched)
       } else {
-        setVoiceError(`Couldn't match "${t}". Try again or click an option below.`)
+        setVoiceError(
+          lang.code === 'en-US'
+            ? `Couldn't match "${t}". Try again or click an option below.`
+            : `"${t}" पहचाना नहीं गया। फिर कोशिश करें या नीचे क्लिक करें।`
+        )
         setVoiceTranscript('')
       }
     }
@@ -459,7 +636,6 @@ export default function AssessmentPage() {
     try {
       recognition.start()
     } catch (_) {
-      // Swallow "already started" race condition
       setIsListening(false)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -525,7 +701,7 @@ export default function AssessmentPage() {
       const { data: prof } = await supabase
         .from('profiles').select('*').eq('id', user!.id).single()
 
-      const res  = await fetch('/api/score', {
+      const res = await fetch('/api/score', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -613,12 +789,11 @@ export default function AssessmentPage() {
     ? textVal.trim().length >= 10
     : !!selected || froze
 
+  // Voice hint based on question type + selected language
   const voiceHint =
-    currentQ.type === 'AG'
-      ? 'Say "Strongly Agree", "Agree", "Neutral", "Disagree", or "Strongly Disagree"'
-      : currentQ.type === 'CS'
-      ? 'Speak your answer — it transcribes live and you can edit it before submitting'
-      : `Say the option letter: ${currentQ.options?.map(o => `"${o.id}"`).join(', ')}`
+    currentQ.type === 'AG'   ? voiceLang.hint.ag :
+    currentQ.type === 'CS'   ? voiceLang.hint.cs :
+    voiceLang.hint.choice
 
   // ─────────────────────────────────────────────────────────────
   // Render
@@ -629,11 +804,11 @@ export default function AssessmentPage() {
       {/* ── Top bar ─────────────────────────────────────────── */}
       <div className="sticky top-0 z-40 bg-ink/95 backdrop-blur-sm border-b border-[#1A1C22]">
 
-        {/* FIX 1: HTTPS warning — only shown when voice mode is active on HTTP */}
+        {/* HTTPS warning */}
         {insecureOrigin && inputMode === 'voice' && (
           <div className="bg-[#1A1000] border-b border-gold/30 px-4 py-2 text-center">
             <p className="text-[11px] text-gold">
-              ⚠ Voice input requires HTTPS. It will work on Vercel — use Write mode for now on localhost HTTP.
+              ⚠ Voice input requires HTTPS. It will work after deploying to Vercel.
             </p>
           </div>
         )}
@@ -647,7 +822,7 @@ export default function AssessmentPage() {
             </div>
           </div>
 
-          {/* FIX 2: toggle hidden in Firefox (no SpeechRecognition at all) */}
+          {/* Write / Voice toggle — hidden in Firefox */}
           {voiceSupported && (
             <InputModeToggle mode={inputMode} onChange={handleModeChange} />
           )}
@@ -681,7 +856,7 @@ export default function AssessmentPage() {
             )}
             {inputMode === 'voice' && voiceSupported && currentQ.type !== 'IP' && (
               <span className={`badge ml-auto ${isListening ? 'badge-signal' : 'badge-teal'}`}>
-                {isListening ? '● Recording' : '🎙 Voice on'}
+                {isListening ? '● Recording' : `🎙 ${voiceLang.label}`}
               </span>
             )}
           </div>
@@ -695,14 +870,23 @@ export default function AssessmentPage() {
               VOICE PANEL
           ═══════════════════════════════════════════════ */}
           {inputMode === 'voice' && voiceSupported && (
-            <div className="mb-6">
-              <p className="text-[11px] text-muted mb-5 leading-relaxed border-l-2 border-[#2A2C32] pl-3 italic">
+            <div className="mb-6 space-y-4">
+
+              {/* Language selector */}
+              <LanguageSelector
+                selected={voiceLang}
+                onChange={handleLangChange}
+                disabled={isListening}
+              />
+
+              {/* Hint */}
+              <p className="text-[11px] text-muted leading-relaxed border-l-2 border-[#2A2C32] pl-3 italic">
                 {voiceHint}
               </p>
 
-              {/* FIX 4: IP auto-listens — show status only, no manual button */}
+              {/* IP: auto-listens — show status only */}
               {currentQ.type === 'IP' ? (
-                <div className="flex flex-col items-center gap-3 py-4 border border-[#1A1C22] bg-[#0A0C12] rounded-sm mb-4">
+                <div className="flex flex-col items-center gap-3 py-4 border border-[#1A1C22] bg-[#0A0C12] rounded-sm">
                   <div className={`w-3 h-3 rounded-full ${isListening ? 'bg-signal animate-pulse' : 'bg-[#2A2C32]'}`} />
                   <p className="text-xs text-muted">
                     {isListening
@@ -728,11 +912,12 @@ export default function AssessmentPage() {
                   />
                   <p className="text-xs text-muted">
                     {insecureOrigin
-                      ? 'Requires HTTPS — use Write mode or deploy to Vercel'
+                      ? 'Requires HTTPS — use Write mode for now'
                       : isListening
                       ? <span className="text-signal">Listening… tap to stop</span>
                       : 'Tap to speak'}
                   </p>
+
                   {voiceTranscript && (
                     <div className={`w-full max-w-sm px-4 py-2.5 border text-sm rounded-sm text-center transition-colors
                       ${voiceTranscript.startsWith('✓')
@@ -741,6 +926,7 @@ export default function AssessmentPage() {
                       {voiceTranscript}
                     </div>
                   )}
+
                   {voiceError && (
                     <p className="text-xs text-signal text-center px-4">{voiceError}</p>
                   )}
@@ -749,7 +935,7 @@ export default function AssessmentPage() {
 
               {/* CS: editable transcription area */}
               {currentQ.type === 'CS' && (
-                <div className="mt-4">
+                <div>
                   <p className="text-[10px] text-muted uppercase tracking-wider mb-2">
                     Transcribed answer — edit freely before submitting
                   </p>
@@ -766,9 +952,9 @@ export default function AssessmentPage() {
                 </div>
               )}
 
-              {/* Divider: "or select below" for choice types */}
+              {/* "or select below" divider for choice types */}
               {currentQ.type !== 'CS' && (
-                <div className="flex items-center gap-3 mt-5">
+                <div className="flex items-center gap-3">
                   <div className="flex-1 h-px bg-[#1E2028]" />
                   <span className="text-[10px] text-muted uppercase tracking-wider whitespace-nowrap">
                     or select below
