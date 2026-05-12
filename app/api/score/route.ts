@@ -16,20 +16,33 @@ export async function POST(req: NextRequest) {
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! })
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 8000,
+      max_tokens: 16000,   // FIX 1: doubled from 8000 — prevents response cut-off
       system: buildScoringPrompt(user_context, responses),
       messages: [{ role: 'user', content: buildUserMessage(user_context, responses) }],
     })
 
     const raw = message.content[0].type === 'text' ? message.content[0].text : ''
-    const clean = raw.replace(/^```json\s*/i,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim()
+
+    // FIX 2: extract the JSON object directly first, then fall back to stripping fences
+    // This handles cases where Claude adds extra text before or after the JSON
+    const jsonMatch = raw.match(/\{[\s\S]*\}/)
+    const clean = jsonMatch
+      ? jsonMatch[0]
+      : raw.replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/\s*```$/, '').trim()
 
     let report
-    try { report = JSON.parse(clean) }
-    catch { return NextResponse.json({ error: 'Report parsing failed' }, { status: 500 }) }
+    try {
+      report = JSON.parse(clean)
+    } catch {
+      // FIX 3: log the raw response so you can debug future issues in Vercel logs
+      console.error('JSON parse failed. Raw response was:', raw.slice(0, 500))
+      return NextResponse.json({ error: 'Report parsing failed' }, { status: 500 })
+    }
 
     const { data: saved } = await supabase.from('reports').insert({
-      session_id, user_id: user.id, report_json: report,
+      session_id,
+      user_id: user.id,
+      report_json: report,
       accuracy_conf: report.accuracy_confidence,
       headline: report.report_headline,
     }).select('id').single()
