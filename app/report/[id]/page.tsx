@@ -77,49 +77,34 @@ function ScoreBar({ pct, color = 'bg-signal' }: { pct: number; color?: string })
   )
 }
 
-// ── Narrative — breaks up walls of text ─────────────────────────────
-// Matches PDF: first para = pull-quote box, others = bold lead + body
-function NarrativePara({
-  text, isFirst, borderColor, bgColor,
-}: {
-  text: string; isFirst: boolean; borderColor: string; bgColor: string
-}) {
+// ── Narrative block — breaks walls of text ──────────────────────────
+// First para = pull-quote box. Others = bold lead sentence + body text.
+function NarrativePara({ text, isFirst, accent }: { text: string; isFirst: boolean; accent: string }) {
   const m    = text.match(/^(.+?[.!?])\s+(.+)$/s)
   const lead = m ? m[1] : text
   const body = m ? m[2] : ''
-
   if (isFirst) {
     return (
-      <div className={`border-l-4 rounded-r-xl px-5 py-4 mb-5 ${bgColor} ${borderColor}`}>
-        <p className="font-serif text-base md:text-lg text-paper leading-relaxed italic">
-          {text}
-        </p>
+      <div className={`border-l-4 ${accent} bg-[#1A1C22]/40 rounded-r-xl px-5 py-4 mb-2`}>
+        <p className="font-serif text-base md:text-lg text-paper leading-relaxed italic">{text}</p>
       </div>
     )
   }
-
   return (
-    <div className="mb-5 pb-5 border-b border-[#1A1C22] last:border-0 last:mb-0 last:pb-0">
+    <div className="pb-4 border-b border-[#1A1C22] last:border-0 last:pb-0">
       <p className="text-sm font-semibold text-paper leading-relaxed mb-2">{lead}</p>
-      {body && <p className="text-sm text-dim leading-8">{body}</p>}
+      {body ? <p className="text-sm text-dim leading-8">{body}</p> : null}
     </div>
   )
 }
 
-function NarrativeSection({
-  text, borderColor, bgColor,
-}: {
-  text: string; borderColor: string; bgColor: string
-}) {
+function NarrativeBlock({ text, accent }: { text?: string; accent: string }) {
   if (!text) return null
-  const paras = text.split(/\n\n+/).map(p => p.trim()).filter(Boolean)
+  const paras = text.split(/\n\n+/).map((p: string) => p.trim()).filter(Boolean)
   return (
-    <div>
-      {paras.map((p, i) => (
-        <NarrativePara
-          key={i} text={p} isFirst={i === 0}
-          borderColor={borderColor} bgColor={bgColor}
-        />
+    <div className="space-y-4">
+      {paras.map((p: string, i: number) => (
+        <NarrativePara key={i} text={p} isFirst={i === 0} accent={accent} />
       ))}
     </div>
   )
@@ -309,11 +294,9 @@ export default function ReportPage() {
               <span className="text-sm text-dim">{report.dominant_guna}</span>
             </div>
           )}
-          <NarrativeSection
-            text={report.sections?.personality_portrait || ''}
-            borderColor="border-signal"
-            bgColor="bg-signal/5"
-          />
+          <div className="space-y-4">
+            <NarrativeBlock text={report.sections?.personality_portrait} accent="border-signal" />
+          </div>
         </div>
 
         {/* ══════════════════════════════════════════════════
@@ -524,11 +507,9 @@ export default function ReportPage() {
               <p className="text-xs text-dim leading-relaxed">{report.contradiction_report.what_it_means}</p>
             </div>
           )}
-          <NarrativeSection
-            text={report.sections?.under_pressure || ''}
-            borderColor="border-purple-500"
-            bgColor="bg-purple-500/5"
-          />
+          <div className="space-y-4">
+            <NarrativeBlock text={report.sections?.under_pressure} accent="border-purple-500" />
+          </div>
         </div>
 
         {/* ══════════════════════════════════════════════════
@@ -536,11 +517,9 @@ export default function ReportPage() {
         ══════════════════════════════════════════════════ */}
         <div id="drives" className="scroll-mt-28">
           <SectionHeader num="07" title="What Actually Drives You" />
-          <NarrativeSection
-            text={report.sections?.what_drives_you || ''}
-            borderColor="border-teal"
-            bgColor="bg-teal/5"
-          />
+          <div className="space-y-4">
+            <NarrativeBlock text={report.sections?.what_drives_you} accent="border-teal" />
+          </div>
         </div>
 
         {/* ══════════════════════════════════════════════════
@@ -548,11 +527,10 @@ export default function ReportPage() {
         ══════════════════════════════════════════════════ */}
         <div id="blindspot" className="scroll-mt-28">
           <SectionHeader num="08" title="Your Blind Spots" />
-          <NarrativeSection
-            text={report.sections?.blind_spots || ''}
-            borderColor="border-signal"
-            bgColor="bg-signal/5"
-          />
+          <div className="space-y-4">
+            <NarrativeBlock text={report.sections?.blind_spots} accent="border-signal" />
+          </div>
+        </div>
 
         {/* ══════════════════════════════════════════════════
             SECTION 09 — GROWTH EDGES + ACTION PLAN
