@@ -48,8 +48,8 @@ export async function GET(req: NextRequest) {
     }
 
     const dimNames: Record<string,string> = {
-      D1:'Personality', D2:'Interests', D3:'Aptitude', D4:'Values',
-      D5:'Emotional Makeup', D6:'Motivation', D7:'Thinking Style', D8:'Work Style',
+      D1:'Personality', d2:'Interests', d3:'Aptitude', d4:'Values',
+      D5:'Emotional Makeup', d6:'Motivation', d7:'Thinking Style', d8:'Work Style',
     }
 
     // ── Shared helpers ────────────────────────────────────────────────
@@ -95,7 +95,6 @@ export async function GET(req: NextRequest) {
 
     // Split a paragraph into [first sentence, rest]
     function splitFirstSentence(text: string): [string, string] {
-      // FIXED: Removed the /s flag and targeted [\s\S] for 100% Vercel target compatibility
       const m = text.match(/^([\s\S]+?[.!?])\s+([\s\S]+)$/)
       return m ? [m[1], m[2]] : [text, '']
     }
@@ -369,11 +368,11 @@ export async function GET(req: NextRequest) {
 <div style="padding:52px 56px;page-break-before:always">
   ${sectionHeader('03', 'Career Domain Scores', C.teal, C.tealLt)}
   <p style="font-size:11pt;color:${C.muted};margin-bottom:10px;line-height:1.7">
-    Scored 0–100 based on behavioral alignment — not self-reported interest.
+    Scored 0—100 based on behavioral alignment — not self-reported interest.
   </p>
 
   <div style="display:flex;gap:20px;margin-bottom:22px">
-    ${[[C.teal,C.tealLt,'Strong (70+)'],[C.gold,C.goldLt,'Good (45–69)'],['#BBBBBB',C.paper,'Lower (<45)']].map(
+    ${[[C.teal,C.tealLt,'Strong (70+)'],[C.gold,C.goldLt,'Good (45—69)'],['#BBBBBB',C.paper,'Lower (<45)']].map(
       ([c,bg,label])=>`<div style="display:flex;align-items:center;gap:7px">
         <div style="width:12px;height:12px;background:${c};border-radius:50%"></div>
         <span style="font-size:10px;color:${C.muted}">${label}</span>
@@ -391,6 +390,12 @@ export async function GET(req: NextRequest) {
       const rc  = rankC[i]||C.muted
       const fitN = parseInt(c.fit_score)||0
       const insts = (isIndia ? c.top_institutions_india : c.top_institutions_usa)||[]
+      
+      // FIXED: Safely loop inside standard backend javascript string builder templates
+      const dynamicPills = (c.natural_strengths_used || []).slice(0, 2).map((s: string) => 
+        pill(s, C.teal + '33', '#1A7A6E')
+      ).join('')
+
       return `
 <div style="border:1.5px solid ${C.line};border-radius:10px;overflow:hidden;
   margin-bottom:16px;page-break-inside:avoid">
@@ -402,8 +407,7 @@ export async function GET(req: NextRequest) {
       <div style="font-size:14pt;font-weight:700;color:#F8F6F2;margin-bottom:6px">${c.title}</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
         ${pill(c.fit_score+' FIT', rc+'33', rc, '800')}
-        {(c.natural_strengths_used||[]).slice(0,2).map((s:string)=>
-          pill(s, C.teal+'33','#6ECEC6')).join('')}
+        ${dynamicPills}
       </div>
     </div>
     <div style="width:110px">
@@ -635,6 +639,7 @@ export async function GET(req: NextRequest) {
     // Assemble the complete document layout sequence
     const htmlPayload = `<html>
 <head>
+  <meta charset="utf-8">
   <title>Behavioral Intelligence Profile</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <style>
