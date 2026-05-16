@@ -166,7 +166,7 @@ export async function GET(req: NextRequest) {
     <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.2em;color:${C.signal};
       font-weight:800;margin-bottom:16px">Psychometric Assessment Report</div>
 
-    <div style="font-family:'Instrument Serif',Georgia,serif;font-size:52px;line-height:1.0;
+    <div style="font-family:'Instrument Serif',Georgia,serif;font-size:52px;line-height:1.2;
       color:${C.ink};margin-bottom:18px">
       Behavioral<br>Intelligence<br><em style="color:${C.muted}">Profile</em>
     </div>
@@ -633,9 +633,49 @@ export async function GET(req: NextRequest) {
 </div>` : ''
 
     // Assemble the complete document layout sequence
- const htmlPayload = `<html><body>${cover}${toc}${s01}${s02}${s03}${s04}${s05}${narrativePages}${s09}${s10}</body></html>`
+    const htmlPayload = `<html>
+<head>
+  <title>Behavioral Intelligence Profile</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style>
+    @media print {
+      body { background: #ffffff; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body style="margin:0; padding:0; background-color:#F8F6F2; position:relative;">
+
+  <div class="no-print" style="position: fixed; top: 24px; right: 24px; z-index: 9999;">
+    <button onclick="window.print()" style="
+      background: #C8411A;
+      color: #FFFFFF;
+      font-family: sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      padding: 12px 22px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(200, 65, 26, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      SAVE AS PDF
+    </button>
+  </div>
+
+  ${cover}${toc}${s01}${s02}${s03}${s04}${s05}${narrativePages}${s09}${s10}
+
+</body>
+</html>`
     
-    // Return standard HTML payload (or pass to your PDF generator instance below)
+    // Return standard HTML payload
     return new NextResponse(htmlPayload, {
       headers: { 'Content-Type': 'text/html' }
     })
