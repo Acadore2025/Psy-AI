@@ -80,7 +80,7 @@ function ScoreBar({ pct, color = 'bg-signal' }: { pct: number; color?: string })
 // ── Narrative block — breaks walls of text ──────────────────────────
 // First para = pull-quote box. Others = bold lead sentence + body text.
 function NarrativePara({ text, isFirst, accent }: { text: string; isFirst: boolean; accent: string }) {
-  const m    = text.match(/^(.+?[.!?])\s+(.+)$/s)
+  const m    = text.match(/^([\s\S]+?[.!?])\s+([\s\S]+)$/)
   const lead = m ? m[1] : text
   const body = m ? m[2] : ''
   if (isFirst) {
