@@ -95,7 +95,8 @@ export async function GET(req: NextRequest) {
 
     // Split a paragraph into [first sentence, rest]
     function splitFirstSentence(text: string): [string, string] {
-      const m = text.match(/^(.+?[.!?])\s+(.+)$/s)
+      // FIXED: Removed the /s flag and targeted [\s\S] for 100% Vercel target compatibility
+      const m = text.match(/^([\s\S]+?[.!?])\s+([\s\S]+)$/)
       return m ? [m[1], m[2]] : [text, '']
     }
 
@@ -155,7 +156,6 @@ export async function GET(req: NextRequest) {
 
   <div style="flex:1;padding:48px 56px;display:flex;flex-direction:column">
 
-    <!-- Logo -->
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:56px">
       <div style="font-family:'DM Mono',monospace;font-size:16px;letter-spacing:0.22em;color:${C.ink}">
         PSY<span style="color:${C.signal}">AI</span></div>
@@ -163,11 +163,9 @@ export async function GET(req: NextRequest) {
       <div style="font-size:10px;color:${C.muted};letter-spacing:0.08em">Behavioral Intelligence Platform</div>
     </div>
 
-    <!-- Report type tag -->
     <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.2em;color:${C.signal};
       font-weight:800;margin-bottom:16px">Psychometric Assessment Report</div>
 
-    <!-- Title -->
     <div style="font-family:'Instrument Serif',Georgia,serif;font-size:52px;line-height:1.0;
       color:${C.ink};margin-bottom:18px">
       Behavioral<br>Intelligence<br><em style="color:${C.muted}">Profile</em>
@@ -177,14 +175,11 @@ export async function GET(req: NextRequest) {
       mapped to career paths and growth opportunities.
     </p>
 
-    <!-- Colored divider -->
     <div style="height:2px;background:linear-gradient(to right,${C.signal},${C.gold},${C.teal},transparent);
       margin-bottom:44px;border-radius:2px"></div>
 
-    <!-- 3-column grid: user | details | ring -->
     <div style="display:grid;grid-template-columns:1fr 1fr 150px;gap:36px;align-items:start;margin-bottom:44px">
 
-      <!-- User -->
       <div>
         <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.14em;
           color:${C.muted};font-weight:700;margin-bottom:12px">Report Prepared For</div>
@@ -206,7 +201,6 @@ export async function GET(req: NextRequest) {
         </table>
       </div>
 
-      <!-- Report details -->
       <div>
         <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.14em;
           color:${C.muted};font-weight:700;margin-bottom:12px">Report Details</div>
@@ -226,11 +220,9 @@ export async function GET(req: NextRequest) {
         </table>
       </div>
 
-      <!-- Accuracy ring -->
       <div style="text-align:center;padding-top:8px">${accRing}</div>
     </div>
 
-    <!-- Stat strip -->
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:44px">
       ${statBox(r.accuracy_confidence||'—', 'Accuracy', C.signal, C.signalLt)}
       ${statBox(String(r.contradiction_count||0), 'Signals Found', C.teal, C.tealLt)}
@@ -238,7 +230,6 @@ export async function GET(req: NextRequest) {
       ${statBox('8', 'Dimensions', C.gold, C.goldLt)}
     </div>
 
-    <!-- Headline -->
     <div style="margin-top:auto;background:${C.ink};border-radius:10px;padding:26px 30px">
       <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.18em;
         color:${C.signal};font-weight:800;margin-bottom:10px">Report Headline</div>
@@ -261,13 +252,13 @@ export async function GET(req: NextRequest) {
     // ─────────────────────────────────────────────────────────────────
     const tocRows = [
       ['01', 'Who You Actually Are',      C.signal],
-      ['02', 'Your 8 Dimensions',          C.blue],
-      ['03', 'Career Domain Scores',       C.teal],
-      ['04', 'Top 10 Career Matches',      C.signal],
-      ['05', 'Natural Strengths',          C.gold],
-      ['06', 'Under Pressure',             C.purple],
-      ['07', 'What Drives You',            C.teal],
-      ['08', 'Blind Spots',                C.signal],
+      ['02', 'Your 8 Dimensions',           C.blue],
+      ['03', 'Career Domain Scores',        C.teal],
+      ['04', 'Top 10 Career Matches',       C.signal],
+      ['05', 'Natural Strengths',           C.gold],
+      ['06', 'Under Pressure',              C.purple],
+      ['07', 'What Drives You',             C.teal],
+      ['08', 'Blind Spots',                 C.signal],
       ['09', 'Growth Edges & Action Plan', C.gold],
       ...(profile?.age < 22 ? [['10', 'For Parents & Mentors', C.teal]] : []),
     ]
@@ -317,7 +308,6 @@ export async function GET(req: NextRequest) {
 <div style="border:1.5px solid ${dc.accent}25;border-radius:10px;overflow:hidden;
   margin-bottom:14px;page-break-inside:avoid">
 
-  <!-- Colored header band -->
   <div style="background:${dc.lt};padding:14px 20px;
     border-bottom:1px solid ${dc.accent}20;display:flex;align-items:center;gap:10px">
     <div style="background:${dc.accent};color:#fff;font-family:'DM Mono',monospace;
@@ -331,10 +321,8 @@ export async function GET(req: NextRequest) {
     </div>
   </div>
 
-  <!-- Bar -->
   <div style="padding:14px 20px 6px">${bar(confPct, dc.accent, 8)}</div>
 
-  <!-- Content -->
   <div style="padding:8px 20px 18px">
     <p style="font-size:11pt;color:${C.dim};line-height:1.8;margin:0 0 10px">${d.observed||''}</p>
     ${d.evidence ? `
@@ -384,7 +372,6 @@ export async function GET(req: NextRequest) {
     Scored 0–100 based on behavioral alignment — not self-reported interest.
   </p>
 
-  <!-- Legend -->
   <div style="display:flex;gap:20px;margin-bottom:22px">
     ${[[C.teal,C.tealLt,'Strong (70+)'],[C.gold,C.goldLt,'Good (45–69)'],['#BBBBBB',C.paper,'Lower (<45)']].map(
       ([c,bg,label])=>`<div style="display:flex;align-items:center;gap:7px">
@@ -408,7 +395,6 @@ export async function GET(req: NextRequest) {
 <div style="border:1.5px solid ${C.line};border-radius:10px;overflow:hidden;
   margin-bottom:16px;page-break-inside:avoid">
 
-  <!-- Dark header -->
   <div style="background:${C.ink};padding:18px 22px;display:flex;align-items:center;gap:16px">
     <div style="font-family:'Instrument Serif',Georgia,serif;font-size:28px;
       color:${rc};flex-shrink:0;width:32px;line-height:1">${c.rank}</div>
@@ -416,11 +402,10 @@ export async function GET(req: NextRequest) {
       <div style="font-size:14pt;font-weight:700;color:#F8F6F2;margin-bottom:6px">${c.title}</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
         ${pill(c.fit_score+' FIT', rc+'33', rc, '800')}
-        ${(c.natural_strengths_used||[]).slice(0,2).map((s:string)=>
+        {(c.natural_strengths_used||[]).slice(0,2).map((s:string)=>
           pill(s, C.teal+'33','#6ECEC6')).join('')}
       </div>
     </div>
-    <!-- Fit bar in header -->
     <div style="width:110px">
       <div style="font-size:8px;color:${C.muted};margin-bottom:5px;text-align:right;
         letter-spacing:0.08em">BEHAVIORAL FIT</div>
@@ -428,10 +413,8 @@ export async function GET(req: NextRequest) {
     </div>
   </div>
 
-  <!-- Body -->
   <div style="padding:20px 22px">
 
-    <!-- Why this person — as pull quote -->
     <div style="background:${C.paper};border-left:4px solid ${rc};border-radius:0 8px 8px 0;
       padding:14px 18px;margin-bottom:16px">
       <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.1em;
@@ -439,7 +422,6 @@ export async function GET(req: NextRequest) {
       <p style="font-size:11pt;color:${C.dim};line-height:1.8;margin:0">${c.why_this_person||''}</p>
     </div>
 
-    <!-- Day in life -->
     ${c.what_a_day_looks_like ? `
     <div style="background:${C.tealLt};border-left:3px solid ${C.teal};border-radius:0 6px 6px 0;
       padding:12px 16px;margin-bottom:16px">
@@ -450,7 +432,6 @@ export async function GET(req: NextRequest) {
       </p>
     </div>` : ''}
 
-    <!-- Entry + Salary -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
       <div style="background:${C.paper};border-radius:8px;padding:14px 16px">
         <div style="font-size:8px;text-transform:uppercase;letter-spacing:0.1em;
@@ -472,7 +453,6 @@ export async function GET(req: NextRequest) {
       </div>
     </div>
 
-    <!-- Institutions -->
     ${insts.filter(Boolean).length ? `
     <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px">
       ${insts.filter(Boolean).map((inst:string)=>
@@ -480,7 +460,6 @@ export async function GET(req: NextRequest) {
           padding:4px 12px;border-radius:5px">${inst}</span>`).join('')}
     </div>` : ''}
 
-    <!-- Honest warning -->
     ${c.honest_warning ? `
     <div style="background:${C.signalLt};border:1px solid ${C.signal}30;
       border-left:4px solid ${C.signal};border-radius:0 8px 8px 0;padding:12px 16px">
@@ -636,7 +615,7 @@ export async function GET(req: NextRequest) {
       This section is for parents, mentors, or anyone who plays a significant role in ${profile?.name}'s life.
     </p>
     ${[
-      {label:'Who They Are',         text:pn.who_they_are},
+      {label:'Who They Are',          text:pn.who_they_are},
       {label:'What They Need',       text:pn.what_they_need},
       {label:'What to Avoid',        text:pn.what_to_avoid},
     ].filter(b=>b.text&&b.text!=='N/A').map(b=>`
@@ -647,64 +626,22 @@ export async function GET(req: NextRequest) {
     </div>`).join('')}
     ${pn.the_one_thing&&pn.the_one_thing!=='N/A'?`
     <div style="background:${C.gold};color:#fff;border-radius:8px;padding:16px 20px">
-      <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.12em;
-        opacity:0.8;margin-bottom:6px">The One Thing</div>
-      <div style="font-size:13pt;font-weight:700;line-height:1.4">${pn.the_one_thing}</div>
+      <span style="font-size:9px;text-transform:uppercase;letter-spacing:0.12em;font-weight:800;margin-right:8px">The One Thing:</span>
+      <span style="font-size:11pt;font-weight:500">${pn.the_one_thing}</span>
     </div>`:''}
   </div>
 </div>` : ''
 
-    // ─────────────────────────────────────────────────────────────────
-    // FOOTER + ASSEMBLE
-    // ─────────────────────────────────────────────────────────────────
-    const footer = `
-<div style="padding:0 56px 36px">
-  <div style="border-top:1px solid ${C.line};padding-top:14px;
-    display:flex;justify-content:space-between;align-items:center">
-    <span style="font-family:'DM Mono',monospace;font-size:8px;color:${C.muted};letter-spacing:0.1em">
-      PSYAI · BEHAVIORAL INTELLIGENCE PLATFORM
-    </span>
-    <span style="font-family:'DM Mono',monospace;font-size:8px;color:${C.muted}">
-      ${profile?.name} · ${date} · CONFIDENTIAL
-    </span>
-  </div>
-</div>`
-
-    const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>PsyAI — ${profile?.name}</title>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'DM Sans',sans-serif;background:#fff;color:#0D0F14;-webkit-font-smoothing:antialiased}
-  @media print{.no-print{display:none!important}@page{size:A4;margin:10mm 8mm}}
-  .print-btn{position:fixed;bottom:24px;right:24px;background:#C8411A;color:#fff;border:none;
-    padding:14px 28px;font-size:14px;font-family:'DM Sans',sans-serif;font-weight:700;
-    border-radius:8px;cursor:pointer;z-index:999;box-shadow:0 4px 20px rgba(200,65,26,0.4)}
-</style>
-</head>
-<body>
-<button class="print-btn no-print" onclick="window.print()">Download PDF ↓</button>
-${cover}
-${toc}
-${s01}
-${s02}
-${s03}
-${s04}
-${s05}
-${narrativePages}
-${s09}
-${s10}
-${footer}
-</body>
-</html>`
-
-    return new NextResponse(html, {
-      headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'}
+    // Assemble the complete document layout sequence
+    const htmlPayload = `<html><body>${cover}${toc}${s01}${s02}${s03}${s04}${s05}${narrativePages}${s09}${s10}</body></html>`
+    
+    // Return standard HTML payload (or pass to your PDF generator instance below)
+    return new NextResponse(htmlPayload, {
+      headers: { 'Content-Type': 'text/html' }
     })
-  } catch(e:any) {
-    return NextResponse.json({error:e.message},{status:500})
+
+  } catch (error) {
+    console.error('PDF Route execution dropped:', error)
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
   }
 }
