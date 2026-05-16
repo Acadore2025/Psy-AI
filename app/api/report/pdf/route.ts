@@ -633,11 +633,7 @@ export async function GET(req: NextRequest) {
 </div>` : ''
 
     // Assemble the complete document layout sequence
-    const htmlPayload = `<html>
-  <body onload="window.print()">
-    ${cover}${toc}${s01}${s02}${s03}${s04}${s05}${narrativePages}${s09}${s10}
-  </body>
-</html>`
+ const htmlPayload = `<html><body>${cover}${toc}${s01}${s02}${s03}${s04}${s05}${narrativePages}${s09}${s10}</body></html>`
     
     // Return standard HTML payload (or pass to your PDF generator instance below)
     return new NextResponse(htmlPayload, {
