@@ -80,6 +80,7 @@ function ScoreBar({ pct, color = 'bg-signal' }: { pct: number; color?: string })
 // ── Narrative block — breaks walls of text ──────────────────────────
 // First para = pull-quote box. Others = bold lead sentence + body text.
 function NarrativePara({ text, isFirst, accent }: { text: string; isFirst: boolean; accent: string }) {
+  // Safe multi-line engine evaluation matching that won't require target config overhauls
   const m    = text.match(/^([\s\S]+?[.!?])\s+([\s\S]+)$/)
   const lead = m ? m[1] : text
   const body = m ? m[2] : ''
@@ -336,7 +337,8 @@ export default function ReportPage() {
             Scored 0–100 based on behavioral alignment across your 70 responses — not self-reported interest.
           </p>
           <div className="space-y-3">
-            {[...(report.career_domain_scores || [])].sort((a: any, b: any) => b.score - a.score)
+            {[...(report.career_domain_scores || [])]
+              .sort((a: any, b: any) => b.score - a.score)
               .map((d: any, i: number) => {
                 const pct   = Math.min(100, Math.max(0, d.score))
                 const color = pct >= 70 ? 'bg-teal' : pct >= 45 ? 'bg-gold' : 'bg-[#3A3C42]'
@@ -642,9 +644,6 @@ export default function ReportPage() {
               Retake Assessment →
             </Link>
           </div>
-          <p className="text-xs text-muted text-center pb-4">
-            Your raw answers are never stored. Only this analyzed report is saved.
-          </p>
         </div>
 
       </div>
