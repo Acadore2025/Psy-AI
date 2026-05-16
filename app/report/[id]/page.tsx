@@ -77,6 +77,54 @@ function ScoreBar({ pct, color = 'bg-signal' }: { pct: number; color?: string })
   )
 }
 
+// ── Narrative — breaks up walls of text ─────────────────────────────
+// Matches PDF: first para = pull-quote box, others = bold lead + body
+function NarrativePara({
+  text, isFirst, borderColor, bgColor,
+}: {
+  text: string; isFirst: boolean; borderColor: string; bgColor: string
+}) {
+  const m    = text.match(/^(.+?[.!?])\s+(.+)$/s)
+  const lead = m ? m[1] : text
+  const body = m ? m[2] : ''
+
+  if (isFirst) {
+    return (
+      <div className={`border-l-4 rounded-r-xl px-5 py-4 mb-5 ${bgColor} ${borderColor}`}>
+        <p className="font-serif text-base md:text-lg text-paper leading-relaxed italic">
+          {text}
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="mb-5 pb-5 border-b border-[#1A1C22] last:border-0 last:mb-0 last:pb-0">
+      <p className="text-sm font-semibold text-paper leading-relaxed mb-2">{lead}</p>
+      {body && <p className="text-sm text-dim leading-8">{body}</p>}
+    </div>
+  )
+}
+
+function NarrativeSection({
+  text, borderColor, bgColor,
+}: {
+  text: string; borderColor: string; bgColor: string
+}) {
+  if (!text) return null
+  const paras = text.split(/\n\n+/).map(p => p.trim()).filter(Boolean)
+  return (
+    <div>
+      {paras.map((p, i) => (
+        <NarrativePara
+          key={i} text={p} isFirst={i === 0}
+          borderColor={borderColor} bgColor={bgColor}
+        />
+      ))}
+    </div>
+  )
+}
+
 export default function ReportPage() {
   const { id } = useParams()
   const router = useRouter()
@@ -261,13 +309,11 @@ export default function ReportPage() {
               <span className="text-sm text-dim">{report.dominant_guna}</span>
             </div>
           )}
-          <div className="space-y-4">
-            {report.sections?.personality_portrait?.split(/\n\n+/).map((p: string, i: number) => (
-              <p key={i} className={`leading-8 text-dim ${i === 0 ? 'text-base text-paper font-medium' : 'text-sm'}`}>
-                {p}
-              </p>
-            ))}
-          </div>
+          <NarrativeSection
+            text={report.sections?.personality_portrait || ''}
+            borderColor="border-signal"
+            bgColor="bg-signal/5"
+          />
         </div>
 
         {/* ══════════════════════════════════════════════════
@@ -478,11 +524,11 @@ export default function ReportPage() {
               <p className="text-xs text-dim leading-relaxed">{report.contradiction_report.what_it_means}</p>
             </div>
           )}
-          <div className="space-y-4">
-            {report.sections?.under_pressure?.split(/\n\n+/).map((p: string, i: number) => (
-              <p key={i} className="text-sm text-dim leading-8">{p}</p>
-            ))}
-          </div>
+          <NarrativeSection
+            text={report.sections?.under_pressure || ''}
+            borderColor="border-purple-500"
+            bgColor="bg-purple-500/5"
+          />
         </div>
 
         {/* ══════════════════════════════════════════════════
@@ -490,11 +536,11 @@ export default function ReportPage() {
         ══════════════════════════════════════════════════ */}
         <div id="drives" className="scroll-mt-28">
           <SectionHeader num="07" title="What Actually Drives You" />
-          <div className="space-y-4">
-            {report.sections?.what_drives_you?.split(/\n\n+/).map((p: string, i: number) => (
-              <p key={i} className="text-sm text-dim leading-8">{p}</p>
-            ))}
-          </div>
+          <NarrativeSection
+            text={report.sections?.what_drives_you || ''}
+            borderColor="border-teal"
+            bgColor="bg-teal/5"
+          />
         </div>
 
         {/* ══════════════════════════════════════════════════
@@ -502,12 +548,11 @@ export default function ReportPage() {
         ══════════════════════════════════════════════════ */}
         <div id="blindspot" className="scroll-mt-28">
           <SectionHeader num="08" title="Your Blind Spots" />
-          <div className="space-y-4">
-            {report.sections?.blind_spots?.split(/\n\n+/).map((p: string, i: number) => (
-              <p key={i} className="text-sm text-dim leading-8">{p}</p>
-            ))}
-          </div>
-        </div>
+          <NarrativeSection
+            text={report.sections?.blind_spots || ''}
+            borderColor="border-signal"
+            bgColor="bg-signal/5"
+          />
 
         {/* ══════════════════════════════════════════════════
             SECTION 09 — GROWTH EDGES + ACTION PLAN
