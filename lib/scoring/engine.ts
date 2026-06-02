@@ -97,6 +97,63 @@ Return ONLY valid JSON, no markdown fences, no extra text:
 }
 
 // ─────────────────────────────────────────────────────────────────────
+// PART 2A — Narrative sections (portrait, pressure, drives, blindspots)
+// Split from Part 2 to avoid token limit cutoff
+// ─────────────────────────────────────────────────────────────────────
+export function buildScoringPromptPart2A(
+  user: UserContext,
+  responses: Response[],
+  part1: any
+): string {
+  const ageCtx = user.age < 18 ? 'school student' : user.age < 23 ? 'college student' : 'working professional'
+
+  const personalitySummary = Object.entries(part1.personality || {})
+    .map(([dim, v]: any) => `${dim}: ${v.label} (${v.confidence}, ${v.gap} gap) — ${v.observed}`)
+    .join('\n')
+
+  const topCareers = (part1.top_10_careers || [])
+    .slice(0, 3)
+    .map((c: any) => `#${c.rank} ${c.title} (${c.fit_score}): ${c.why_this_person}`)
+    .join('\n')
+
+  return `You are PsyAI writing narrative sections for ${user.name}, ${user.age}yo ${ageCtx}, ${user.country}.
+
+PROFILE:
+${personalitySummary}
+
+TOP CAREERS: ${topCareers}
+CONTRADICTION: ${part1.contradiction_report?.most_significant || 'None'}
+GUNA: ${part1.dominant_guna || ''}
+
+RULES: Second person. Warm and specific. Quote actual answers. Para 1 of personality_portrait must create "how did it know that" moment. blind_spots: do NOT soften. Never use question numbers or timing data.
+
+Return ONLY valid JSON, no markdown:
+{"sections":{"personality_portrait":"4 paragraphs separated by \\n\\n","under_pressure":"3 paragraphs separated by \\n\\n","what_drives_you":"3 paragraphs separated by \\n\\n","blind_spots":"3 paragraphs separated by \\n\\n","career_compass":"3 paragraphs separated by \\n\\n"}}`
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// PART 2B — Growth edges, action plan, parent note
+// ─────────────────────────────────────────────────────────────────────
+export function buildScoringPromptPart2B(
+  user: UserContext,
+  responses: Response[],
+  part1: any
+): string {
+  const ageCtx = user.age < 18 ? 'school student' : user.age < 23 ? 'college student' : 'working professional'
+  const inc    = user.age < 22
+
+  return `You are PsyAI writing growth and action sections for ${user.name}, ${user.age}yo ${ageCtx}, ${user.country}.
+
+TOP CAREER: ${part1.top_10_careers?.[0]?.title || ''}
+CONTRADICTION: ${part1.contradiction_report?.most_significant || 'None'}
+KEY PATTERNS: ${Object.entries(part1.personality || {}).slice(0, 4).map(([d, v]: any) => `${d}: ${v.label}`).join(', ')}
+
+RULES: Specific to real behavioral patterns. No question numbers. Concrete actionable steps.
+
+Return ONLY valid JSON, no markdown:
+{"growth_edges":[{"area":"","observation":"","why_it_matters":"","action":""},{"area":"","observation":"","why_it_matters":"","action":""},{"area":"","observation":"","why_it_matters":"","action":""}],"action_plan":{"this_week":{"action":"","why":""},"this_month":{"action":"","why":""},"three_months":{"action":"","why":""}},"parent_note":{"who_they_are":"${inc ? '2-3 sentences' : 'N/A'}","what_they_need":"${inc ? '2-3 sentences' : 'N/A'}","what_to_avoid":"${inc ? '2-3 sentences' : 'N/A'}","the_one_thing":"${inc ? 'one sentence' : 'N/A'}"}}`
+}
+// ─────────────────────────────────────────────────────────────────────
 // User message — shared between both calls
 // ─────────────────────────────────────────────────────────────────────
 export function buildUserMessage(user: UserContext, responses: Response[]): string {
